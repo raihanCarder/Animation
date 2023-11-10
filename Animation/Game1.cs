@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace Animation
-{   // Raihan Carder
+{   // Raihan Carderr
     public class Game1 : Game
     {
         private GraphicsDeviceManager _graphics;
