@@ -9,6 +9,8 @@ namespace Animation
 
     public class Game1 : Game
     {
+        Random generator = new Random();
+
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         Texture2D tribbleGreyTexture;
@@ -26,6 +28,7 @@ namespace Animation
         Vector2 tribbleBrownSpeed;
         Vector2 tribbleOrangeSpeed;
 
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -40,14 +43,18 @@ namespace Animation
 
         protected override void Initialize()
         {
-            Random generator = new Random();
 
             int tribbleWidth = 100;
 
             int xLocationGrey = generator.Next(_graphics.PreferredBackBufferWidth - tribbleWidth);
             int xLocationCream = generator.Next(_graphics.PreferredBackBufferWidth - tribbleWidth);
+            int xLocationBrown = generator.Next(_graphics.PreferredBackBufferWidth - tribbleWidth);
+            int xLocationOrange = generator.Next(_graphics.PreferredBackBufferWidth - tribbleWidth);
             int yLocationGrey = generator.Next(_graphics.PreferredBackBufferHeight - tribbleWidth);
             int yLocationCream = generator.Next(_graphics.PreferredBackBufferHeight - tribbleWidth);
+            int yLocationBrown = generator.Next(_graphics.PreferredBackBufferHeight - tribbleWidth);
+            int yLocationOrange = generator.Next(_graphics.PreferredBackBufferHeight - tribbleWidth);
+
 
             tribbleGreySpeed = new Vector2(2, 0); // horizontal speed, vertical speed.
             tribbleCreamSpeed = new Vector2(0, 5);
@@ -56,8 +63,8 @@ namespace Animation
             tribbleGreyRect = new Rectangle(xLocationGrey, yLocationGrey,100,100);
             mcdonaldsRect = new Rectangle(0, 0, 900, 500);
             tribbleCreamRect = new Rectangle(xLocationCream, yLocationCream, 100, 100);
-            tribbleBrownRect = new Rectangle(10, 10, 100, 100);
-            tribbleOrangeRect = new Rectangle(100, 40, 100, 100);
+            tribbleBrownRect = new Rectangle(xLocationBrown, yLocationBrown, 100, 100);
+            tribbleOrangeRect = new Rectangle(xLocationOrange, yLocationOrange, 100, 100);
             base.Initialize();
         }
 
@@ -76,6 +83,9 @@ namespace Animation
 
         protected override void Update(GameTime gameTime)
         {
+            int randomSizeWidth = generator.Next(0, 300);
+            int randomSizeHeight = generator.Next(0, 300);
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
@@ -101,9 +111,18 @@ namespace Animation
                 tribbleCreamSpeed.Y *= -1;
 
             if (tribbleBrownRect.Right >= _graphics.PreferredBackBufferWidth || tribbleBrownRect.Left <= 0)
+            {
                 tribbleBrownSpeed.X *= -1;
+                tribbleBrownRect.Width = randomSizeWidth;
+                tribbleBrownRect.Height = randomSizeHeight;
+            }
+
             if (tribbleBrownRect.Top <= 0 || tribbleBrownRect.Bottom >= _graphics.PreferredBackBufferHeight)
+            {
                 tribbleBrownSpeed.Y *= -1;
+                tribbleBrownRect.Width = randomSizeWidth;
+                tribbleBrownRect.Height = randomSizeHeight;
+            }
 
             if (tribbleOrangeRect.Right >= _graphics.PreferredBackBufferWidth || tribbleOrangeRect.Left <= 0)
                 tribbleOrangeSpeed.X *= -1;
