@@ -24,6 +24,7 @@ namespace Animation
         Texture2D mcdonaldsTexture;
         Texture2D spaceTexture;
         Texture2D parisTexture;
+        Texture2D tribbleIntroTexture; 
         Rectangle spaceRect;
         Rectangle parisRect;
         Rectangle tribbleGreyRect;  // make own rectangle for each tribble
@@ -35,7 +36,16 @@ namespace Animation
         Vector2 tribbleCreamSpeed;
         Vector2 tribbleBrownSpeed;
         Vector2 tribbleOrangeSpeed;
-        int hits = 0; 
+        int hits = 0;
+        MouseState mouseState;
+        Screen screen;
+
+        enum Screen
+        {
+            Intro,
+            TribbleYard
+              
+        }
 
         public Game1()
         {
@@ -51,6 +61,8 @@ namespace Animation
 
         protected override void Initialize()
         {
+            screen = Screen.Intro;
+
 
             int tribbleWidth = 100;
 
@@ -94,107 +106,119 @@ namespace Animation
             parisTexture = Content.Load<Texture2D>("Paris");
             teleport = Content.Load<SoundEffect>("TeleportWav");
             bounce = Content.Load<SoundEffect>("BounceWave");
+            tribbleIntroTexture = Content.Load<Texture2D>("Area51");
         }
 
         protected override void Update(GameTime gameTime)
         {
-         
+            mouseState = Mouse.GetState();
             int randomSizeWidth = generator.Next(50, 200);
             int randomSizeHeight = generator.Next(50, 200);
             int randomX = generator.Next(_graphics.PreferredBackBufferWidth - randomSizeWidth);
             int randomY = generator.Next(_graphics.PreferredBackBufferHeight - randomSizeHeight);
- 
+
+            if (screen == Screen.Intro)
+            {
+                if (mouseState.LeftButton == ButtonState.Pressed)
+                    screen = Screen.TribbleYard;
+
+            }
+            else if (screen == Screen.TribbleYard)
+            {
+                // Your previous tribble moving code should go here
+                tribbleGreyRect.X += (int)tribbleGreySpeed.X; // Needs to be int 
+                tribbleGreyRect.Y += (int)tribbleGreySpeed.Y;
+                tribbleCreamRect.X += (int)tribbleCreamSpeed.X;
+                tribbleCreamRect.Y += (int)tribbleCreamSpeed.Y;
+                tribbleBrownRect.X += (int)tribbleBrownSpeed.X;
+                tribbleBrownRect.Y += (int)tribbleBrownSpeed.Y;
+                tribbleOrangeRect.X += (int)tribbleOrangeSpeed.X;
+                tribbleOrangeRect.Y += (int)tribbleOrangeSpeed.Y;
+
+                if (tribbleGreyRect.Right >= _graphics.PreferredBackBufferWidth || tribbleGreyRect.Left <= 0)
+                {
+                    tribbleGreySpeed.X *= -1;
+                    bounce.Play();
+                }
+                if (tribbleGreyRect.Top <= 0 || tribbleGreyRect.Bottom >= _graphics.PreferredBackBufferHeight)
+                {
+                    tribbleGreySpeed.Y *= -1;
+                    bounce.Play();
+                }
+
+                if (tribbleCreamRect.Right >= _graphics.PreferredBackBufferWidth || tribbleCreamRect.Left <= 0)
+                {
+                    tribbleCreamSpeed.X *= -1;
+                    hits++;
+
+                    bounce.Play();
+                }
+
+                if (tribbleCreamRect.Top <= 0 || tribbleCreamRect.Bottom >= _graphics.PreferredBackBufferHeight)
+                {
+                    tribbleCreamSpeed.Y *= -1;
+                    hits++;
+                    bounce.Play();
+                }
+
+                if (tribbleBrownRect.Right >= _graphics.PreferredBackBufferWidth || tribbleBrownRect.Left <= 0)
+                {
+                    tribbleBrownSpeed.X *= -1;
+                    tribbleBrownRect.X = randomX;
+                    tribbleBrownRect.Y = randomY;
+                    tribbleBrownRect.Width = randomSizeWidth;
+                    tribbleBrownRect.Height = randomSizeHeight;
+                    teleport.Play();
+                }
+
+                if (tribbleBrownRect.Top <= 0 || tribbleBrownRect.Bottom >= _graphics.PreferredBackBufferHeight)
+                {
+                    tribbleBrownSpeed.Y *= -1;
+                    tribbleBrownRect.X = randomX;
+                    tribbleBrownRect.Y = randomY;
+                    tribbleBrownRect.Width = randomSizeWidth;
+                    tribbleBrownRect.Height = randomSizeHeight;
+                    teleport.Play();
+                }
+
+                if (tribbleOrangeRect.Right >= _graphics.PreferredBackBufferWidth || tribbleOrangeRect.Left <= 0)
+                {
+                    if (tribbleOrangeRect.Right >= _graphics.PreferredBackBufferWidth)
+                    {
+                        tribbleOrangeSpeed.X = -1 * generator.Next(5, 13);
+                    }
+                    else
+                    {
+                        tribbleOrangeSpeed.X = generator.Next(5, 13);
+                    }
+
+                    bounce.Play();
+                }
+
+                if (tribbleOrangeRect.Top <= 0 || tribbleOrangeRect.Bottom >= _graphics.PreferredBackBufferHeight)
+                {
+                    if (tribbleOrangeRect.Top <= 0)
+                    {
+                        tribbleOrangeSpeed.Y = generator.Next(5, 13);
+                    }
+                    else
+                    {
+                        tribbleOrangeSpeed.Y = -1 * generator.Next(5, 13);
+                    }
+
+                    bounce.Play();
+
+                }
+
+
+            }
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
             // TODO: Add your update logic here
 
-            tribbleGreyRect.X += (int)tribbleGreySpeed.X; // Needs to be int 
-            tribbleGreyRect.Y += (int)tribbleGreySpeed.Y;
-            tribbleCreamRect.X += (int)tribbleCreamSpeed.X;
-            tribbleCreamRect.Y += (int)tribbleCreamSpeed.Y;
-            tribbleBrownRect.X += (int)tribbleBrownSpeed.X;
-            tribbleBrownRect.Y += (int)tribbleBrownSpeed.Y;
-            tribbleOrangeRect.X += (int)tribbleOrangeSpeed.X;
-            tribbleOrangeRect.Y += (int)tribbleOrangeSpeed.Y;
-
-            if (tribbleGreyRect.Right >= _graphics.PreferredBackBufferWidth || tribbleGreyRect.Left <= 0)
-            {
-                tribbleGreySpeed.X *= -1;
-                bounce.Play();
-            }
-            if (tribbleGreyRect.Top <= 0 || tribbleGreyRect.Bottom >= _graphics.PreferredBackBufferHeight)
-            {
-                tribbleGreySpeed.Y *= -1;
-                bounce.Play();
-            }
-
-            if (tribbleCreamRect.Right >= _graphics.PreferredBackBufferWidth || tribbleCreamRect.Left <= 0)
-            {
-                tribbleCreamSpeed.X *= -1;
-                hits++;
-
-                bounce.Play();
-            }
-
-            if (tribbleCreamRect.Top <= 0 || tribbleCreamRect.Bottom >= _graphics.PreferredBackBufferHeight)
-            { 
-                tribbleCreamSpeed.Y *= -1;
-                hits++;
-                bounce.Play();
-            }
-
-            if (tribbleBrownRect.Right >= _graphics.PreferredBackBufferWidth || tribbleBrownRect.Left <= 0)
-            {
-                tribbleBrownSpeed.X *= -1;
-                tribbleBrownRect.X = randomX;
-                tribbleBrownRect.Y = randomY;
-                tribbleBrownRect.Width = randomSizeWidth;
-                tribbleBrownRect.Height = randomSizeHeight;
-                teleport.Play();
-            }
-
-            if (tribbleBrownRect.Top <= 0 || tribbleBrownRect.Bottom >= _graphics.PreferredBackBufferHeight)
-            {
-                tribbleBrownSpeed.Y *= -1;
-                tribbleBrownRect.X = randomX;
-                tribbleBrownRect.Y = randomY;
-                tribbleBrownRect.Width = randomSizeWidth;
-                tribbleBrownRect.Height = randomSizeHeight;
-                teleport.Play();
-            }
-
-            if (tribbleOrangeRect.Right >= _graphics.PreferredBackBufferWidth || tribbleOrangeRect.Left <= 0)
-            {
-                if (tribbleOrangeRect.Right >= _graphics.PreferredBackBufferWidth)
-                {
-                    tribbleOrangeSpeed.X = -1 * generator.Next(5, 13);
-                }
-                else
-                {
-                    tribbleOrangeSpeed.X = generator.Next(5, 13);
-                }
-           
-                bounce.Play();
-            }
-
-            if (tribbleOrangeRect.Top <= 0 || tribbleOrangeRect.Bottom >= _graphics.PreferredBackBufferHeight)
-            {
-                if (tribbleOrangeRect.Top <= 0)
-                {
-                    tribbleOrangeSpeed.Y = generator.Next(5, 13);
-                }
-                else
-                {
-                    tribbleOrangeSpeed.Y = -1 * generator.Next(5, 13);
-                }
-
-                bounce.Play();
-
-            }
-            
-
+          
             base.Update(gameTime);
         }
 
@@ -206,25 +230,34 @@ namespace Animation
 
             _spriteBatch.Begin();
 
-            if (hits < 15)
+            if (screen == Screen.Intro)
             {
-                _spriteBatch.Draw(mcdonaldsTexture, mcdonaldsRect, Color.White);
-                _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
+                _spriteBatch.Draw(tribbleIntroTexture, new Rectangle(0, 0, 900, 500), Color.White);
             }
-            else if (hits >= 15 && hits <= 20)
+            else if (screen == Screen.TribbleYard)
             {
-                _spriteBatch.Draw(parisTexture, parisRect, Color.White);
-                _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.Red);
-            }
-            else
-            {
-                _spriteBatch.Draw(spaceTexture, spaceRect, Color.White);
-                _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.Blue);
-            }
+                // Your previous tribble drawing code should go here
 
-            _spriteBatch.Draw(tribbleGreyTexture, tribbleGreyRect, Color.White);
-            _spriteBatch.Draw(tribbleBrownTexture, tribbleBrownRect, Color.White);
-            _spriteBatch.Draw(tribbleOrangeTexture, tribbleOrangeRect, Color.White);
+                if (hits < 15)
+                {
+                    _spriteBatch.Draw(mcdonaldsTexture, mcdonaldsRect, Color.White);
+                    _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
+                }
+                else if (hits >= 15 && hits <= 20)
+                {
+                    _spriteBatch.Draw(parisTexture, parisRect, Color.White);
+                    _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.Red);
+                }
+                else
+                {
+                    _spriteBatch.Draw(spaceTexture, spaceRect, Color.White);
+                    _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.Blue);
+                }
+
+                _spriteBatch.Draw(tribbleGreyTexture, tribbleGreyRect, Color.White);
+                _spriteBatch.Draw(tribbleBrownTexture, tribbleBrownRect, Color.White);
+                _spriteBatch.Draw(tribbleOrangeTexture, tribbleOrangeRect, Color.White);
+            }
 
             _spriteBatch.End();
 
