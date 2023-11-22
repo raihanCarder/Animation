@@ -8,7 +8,7 @@ using System;
 namespace Animation
 {   
     // Raihan Carder
-    // a
+
     public class Game1 : Game
     {
         Random generator = new Random();
@@ -39,12 +39,12 @@ namespace Animation
         int hits = 0;
         MouseState mouseState;
         Screen screen;
+        SpriteFont introText;
 
         enum Screen
         {
             Intro,
-            TribbleYard
-              
+            TribbleYard            
         }
 
         public Game1()
@@ -107,6 +107,7 @@ namespace Animation
             teleport = Content.Load<SoundEffect>("TeleportWav");
             bounce = Content.Load<SoundEffect>("BounceWave");
             tribbleIntroTexture = Content.Load<Texture2D>("Area51");
+            introText = Content.Load<SpriteFont>("IntroText");
         }
 
         protected override void Update(GameTime gameTime)
@@ -121,6 +122,7 @@ namespace Animation
             {
                 if (mouseState.LeftButton == ButtonState.Pressed)
                     screen = Screen.TribbleYard;
+
 
             }
             else if (screen == Screen.TribbleYard)
@@ -233,6 +235,7 @@ namespace Animation
             if (screen == Screen.Intro)
             {
                 _spriteBatch.Draw(tribbleIntroTexture, new Rectangle(0, 0, 900, 500), Color.White);
+                _spriteBatch.DrawString(introText, "WARNING: LEFT CLICK TO RELEASE THE TRIBBLES", new Vector2(30,0), Color.Red);
             }
             else if (screen == Screen.TribbleYard)
             {
