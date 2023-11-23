@@ -3,7 +3,9 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System;
+using System.Reflection.Metadata;
 
 namespace Animation
 {   
@@ -24,7 +26,9 @@ namespace Animation
         Texture2D mcdonaldsTexture;
         Texture2D spaceTexture;
         Texture2D parisTexture;
-        Texture2D tribbleIntroTexture; 
+        Texture2D tribbleIntroTexture;
+        Texture2D blownTribbleTexture;
+        Texture2D endingScreen;
         Rectangle spaceRect;
         Rectangle parisRect;
         Rectangle tribbleGreyRect;  // make own rectangle for each tribble
@@ -40,11 +44,19 @@ namespace Animation
         MouseState mouseState;
         Screen screen;
         SpriteFont introText;
+        SpriteFont attackText;
+        SpriteFont victoryText;
+        bool mcdonaldsWorld, parisWorld, moonWorld;
+        private SoundEffect introSong, endSong;
+        SoundEffectInstance introInstance, endInstance;
+
+
 
         enum Screen
         {
             Intro,
-            TribbleYard            
+            TribbleYard,
+            Ending
         }
 
         public Game1()
@@ -61,7 +73,7 @@ namespace Animation
 
         protected override void Initialize()
         {
-            screen = Screen.Intro;
+            screen = Screen.Intro; 
 
 
             int tribbleWidth = 100;
@@ -108,6 +120,13 @@ namespace Animation
             bounce = Content.Load<SoundEffect>("BounceWave");
             tribbleIntroTexture = Content.Load<Texture2D>("Area51");
             introText = Content.Load<SpriteFont>("IntroText");
+            endingScreen = Content.Load<Texture2D>("Trenches");
+            attackText = Content.Load<SpriteFont>("Attack");
+            blownTribbleTexture = Content.Load<Texture2D>("Explosion-8");
+            introSong = Content.Load<SoundEffect>("Intro");
+            introInstance = introSong.CreateInstance();
+            introInstance.IsLooped = false;   // The sound will only play once
+            victoryText = Content.Load<SpriteFont>("Victory");
         }
 
         protected override void Update(GameTime gameTime)
@@ -123,10 +142,16 @@ namespace Animation
                 if (mouseState.LeftButton == ButtonState.Pressed)
                     screen = Screen.TribbleYard;
 
+                   introInstance.Play();
 
             }
             else if (screen == Screen.TribbleYard)
             {
+                introInstance.Stop();
+
+                if (mouseState.RightButton == ButtonState.Pressed)
+                    screen = Screen.Ending;
+
                 // Your previous tribble moving code should go here
                 tribbleGreyRect.X += (int)tribbleGreySpeed.X; // Needs to be int 
                 tribbleGreyRect.Y += (int)tribbleGreySpeed.Y;
@@ -215,6 +240,7 @@ namespace Animation
 
             }
 
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
@@ -241,27 +267,61 @@ namespace Animation
             {
                 // Your previous tribble drawing code should go here
 
+
                 if (hits < 15)
                 {
                     _spriteBatch.Draw(mcdonaldsTexture, mcdonaldsRect, Color.White);
                     _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
+                    _spriteBatch.DrawString(attackText, "'Right Click' to End the Tribble Race.", new Vector2(0, 0), Color.Red);
+                    mcdonaldsWorld = true;
+                    moonWorld = false;
+                    parisWorld = false;
                 }
                 else if (hits >= 15 && hits <= 20)
                 {
                     _spriteBatch.Draw(parisTexture, parisRect, Color.White);
                     _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.Red);
+                    _spriteBatch.DrawString(attackText, "'Right Click' to End the Tribble Race.", new Vector2(0, 0), Color.Red);
+                    parisWorld = true;
+                    moonWorld = false;
+                    mcdonaldsWorld = false;
                 }
                 else
                 {
                     _spriteBatch.Draw(spaceTexture, spaceRect, Color.White);
                     _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.Blue);
+                    _spriteBatch.DrawString(attackText, "'Right Click' to End the Tribble Race.", new Vector2(0, 0), Color.Red);
+                    moonWorld = true;
+                    parisWorld = false;
+                    mcdonaldsWorld = false;
                 }
 
                 _spriteBatch.Draw(tribbleGreyTexture, tribbleGreyRect, Color.White);
                 _spriteBatch.Draw(tribbleBrownTexture, tribbleBrownRect, Color.White);
                 _spriteBatch.Draw(tribbleOrangeTexture, tribbleOrangeRect, Color.White);
-            }
 
+            }
+            else if (screen == Screen.Ending)
+            {
+                if (parisWorld == true)
+                {
+                    _spriteBatch.Draw(parisTexture, parisRect, Color.White);
+                }
+                else if (mcdonaldsWorld == true)
+                {
+                    _spriteBatch.Draw(mcdonaldsTexture, mcdonaldsRect, Color.White);
+                }
+                else if (moonWorld == true)
+                {
+                    _spriteBatch.Draw(spaceTexture, spaceRect, Color.White);
+                }
+                _spriteBatch.DrawString(victoryText, "The Tribbles are Extinct!", new Vector2(30, 30), Color.Blue);
+                _spriteBatch.Draw(blownTribbleTexture, tribbleGreyRect, Color.White);
+                _spriteBatch.Draw(blownTribbleTexture, tribbleOrangeRect, Color.White);
+                _spriteBatch.Draw(blownTribbleTexture, tribbleCreamRect, Color.White);
+                _spriteBatch.Draw(blownTribbleTexture, tribbleBrownRect, Color.White);
+
+            }
             _spriteBatch.End();
 
             base.Draw(gameTime);
