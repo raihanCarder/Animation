@@ -283,7 +283,7 @@ namespace Animation
                 {
                     _spriteBatch.Draw(mcdonaldsTexture, mcdonaldsRect, Color.White);
                     _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
-                    _spriteBatch.DrawString(attackText, "'Right Click' to End the Tribble Race.", new Vector2(0, 0), Color.Red);
+                    _spriteBatch.DrawString(attackText, "'Right Click' to End the Tribble Race!", new Vector2(0, 0), Color.Red);
                     mcdonaldsWorld = true;
                     moonWorld = false;
                     parisWorld = false;
@@ -292,7 +292,7 @@ namespace Animation
                 {
                     _spriteBatch.Draw(parisTexture, parisRect, Color.White);
                     _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.Red);
-                    _spriteBatch.DrawString(attackText, "'Right Click' to End the Tribble Race.", new Vector2(0, 0), Color.Red);
+                    _spriteBatch.DrawString(attackText, "'Right Click' to End the Tribble Race!", new Vector2(0, 0), Color.Red);
                     parisWorld = true;
                     moonWorld = false;
                     mcdonaldsWorld = false;
@@ -301,7 +301,7 @@ namespace Animation
                 {
                     _spriteBatch.Draw(spaceTexture, spaceRect, Color.White);
                     _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.Blue);
-                    _spriteBatch.DrawString(attackText, "'Right Click' to End the Tribble Race.", new Vector2(0, 0), Color.Red);
+                    _spriteBatch.DrawString(attackText, "'Right Click' to End the Tribble Race!", new Vector2(0, 0), Color.Red);
                     moonWorld = true;
                     parisWorld = false;
                     mcdonaldsWorld = false;
