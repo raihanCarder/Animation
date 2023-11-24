@@ -38,6 +38,12 @@
 /processorParam:Quality=Best
 /build:BounceWave.wav
 
+#begin DiscoFever.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:DiscoFever.mp3
+
 #begin Explosion-8.png
 /importer:TextureImporter
 /processor:TextureProcessor

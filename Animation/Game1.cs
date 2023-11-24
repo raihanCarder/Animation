@@ -127,6 +127,9 @@ namespace Animation
             introInstance = introSong.CreateInstance();
             introInstance.IsLooped = false;   // The sound will only play once
             victoryText = Content.Load<SpriteFont>("Victory");
+            endSong = Content.Load<SoundEffect>("DiscoFever");
+            endInstance = endSong.CreateInstance();
+            endInstance.IsLooped = false;
         }
 
         protected override void Update(GameTime gameTime)
@@ -239,10 +242,18 @@ namespace Animation
 
 
             }
+            else if (screen == Screen.Ending)
+            {
+                endInstance.Play();
+            }
 
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            {
                 Exit();
+                endInstance.Stop();
+                introInstance.Stop();
+            }
 
             // TODO: Add your update logic here
 
