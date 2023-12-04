@@ -5,7 +5,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using System;
+using System.Collections.Generic;
 using System.Reflection.Metadata;
+using System.Security.Cryptography;
 
 namespace Animation
 {   
@@ -14,11 +16,20 @@ namespace Animation
     public class Game1 : Game
     {
         Random generator = new Random();
-        private SoundEffect teleport;
-        private SoundEffect bounce;
 
+        List<Tribble> loopedTribbles = new List<Tribble>();
+        List<Texture2D> tribbleTextures = new List<Texture2D>();
+
+        private SoundEffect bounce, introSong, endSong, teleport;
+        SoundEffectInstance introInstance, endInstance;
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+
+        Tribble tribbleGrey;
+        Tribble tribbleCream;
+        Tribble tribbleBrown;
+        Tribble tribbleOrange;
+
         Texture2D tribbleGreyTexture;
         Texture2D tribbleBrownTexture;
         Texture2D tribbleCreamTexture;
@@ -28,28 +39,20 @@ namespace Animation
         Texture2D parisTexture;
         Texture2D tribbleIntroTexture;
         Texture2D blownTribbleTexture;
-        Texture2D endingScreen;
+
         Rectangle spaceRect;
         Rectangle parisRect;
-        Rectangle tribbleGreyRect;  // make own rectangle for each tribble
-        Rectangle tribbleCreamRect;
-        Rectangle tribbleBrownRect;
-        Rectangle tribbleOrangeRect;
         Rectangle mcdonaldsRect;
-        Vector2 tribbleGreySpeed;
-        Vector2 tribbleCreamSpeed;
-        Vector2 tribbleBrownSpeed;
-        Vector2 tribbleOrangeSpeed;
-        int hits = 0;
+        
         MouseState mouseState;
         Screen screen;
+
         SpriteFont introText;
         SpriteFont attackText;
         SpriteFont victoryText;
-        bool mcdonaldsWorld, parisWorld, moonWorld;
-        private SoundEffect introSong, endSong;
-        SoundEffectInstance introInstance, endInstance;
 
+        int amount = 10;
+        bool mcdonaldsWorld, parisWorld, moonWorld;
 
 
         enum Screen
@@ -75,32 +78,18 @@ namespace Animation
         {
             screen = Screen.Intro; 
 
-
-            int tribbleWidth = 100;
-
-            int xLocationGrey = generator.Next(_graphics.PreferredBackBufferWidth - tribbleWidth);
-            int xLocationCream = generator.Next(_graphics.PreferredBackBufferWidth - tribbleWidth);
-            int xLocationBrown = generator.Next(_graphics.PreferredBackBufferWidth - tribbleWidth);
-            int xLocationOrange = generator.Next(_graphics.PreferredBackBufferWidth - tribbleWidth);
-            int yLocationGrey = generator.Next(_graphics.PreferredBackBufferHeight - tribbleWidth);
-            int yLocationCream = generator.Next(_graphics.PreferredBackBufferHeight - tribbleWidth);
-            int yLocationBrown = generator.Next(_graphics.PreferredBackBufferHeight - tribbleWidth);
-            int yLocationOrange = generator.Next(_graphics.PreferredBackBufferHeight - tribbleWidth);
-            int randomYSpeed = generator.Next(5, 10);
-            int randomXSpeed = generator.Next(5, 10);
-
-            tribbleGreySpeed = new Vector2(randomXSpeed, 0); // horizontal speed, vertical speed.
-            tribbleCreamSpeed = new Vector2(0, randomYSpeed);
-            tribbleBrownSpeed = new Vector2(10, 9);
-            tribbleOrangeSpeed = new Vector2(3, 9);
-            tribbleGreyRect = new Rectangle(xLocationGrey, yLocationGrey,100,100);
             mcdonaldsRect = new Rectangle(0, 0, 900, 500);
             spaceRect = new Rectangle(0, 0, 900, 500);
             parisRect = new Rectangle(0,0,900, 500);
-            tribbleCreamRect = new Rectangle(xLocationCream, yLocationCream, 100, 100);
-            tribbleBrownRect = new Rectangle(xLocationBrown, yLocationBrown, 100, 100);
-            tribbleOrangeRect = new Rectangle(xLocationOrange, yLocationOrange, 100, 100);
+
             base.Initialize();
+
+            for (int i = 0; i < amount; i++)
+            {
+                loopedTribbles.Add(new Tribble(tribbleTextures[generator.Next(tribbleTextures.Count)], bounce, _graphics));
+            }
+
+
         }
 
         protected override void LoadContent()
@@ -113,6 +102,12 @@ namespace Animation
             tribbleCreamTexture = Content.Load<Texture2D>("tribbleCream");
             tribbleBrownTexture = Content.Load<Texture2D>("tribbleBrown");
             tribbleOrangeTexture = Content.Load<Texture2D>("tribbleOrange");
+            tribbleTextures.Add(tribbleGreyTexture);
+            tribbleTextures.Add(tribbleOrangeTexture);
+            tribbleTextures.Add(tribbleBrownTexture);
+            tribbleTextures.Add(tribbleCreamTexture);
+
+
             mcdonaldsTexture = Content.Load<Texture2D>("Mcdonalds");
             spaceTexture = Content.Load<Texture2D>("Space");
             parisTexture = Content.Load<Texture2D>("Paris");
@@ -120,7 +115,6 @@ namespace Animation
             bounce = Content.Load<SoundEffect>("BounceWave");
             tribbleIntroTexture = Content.Load<Texture2D>("Area51");
             introText = Content.Load<SpriteFont>("IntroText");
-            endingScreen = Content.Load<Texture2D>("Trenches");
             attackText = Content.Load<SpriteFont>("Attack");
             blownTribbleTexture = Content.Load<Texture2D>("Explosion-8");
             introSong = Content.Load<SoundEffect>("Intro");
@@ -135,10 +129,6 @@ namespace Animation
         protected override void Update(GameTime gameTime)
         {
             mouseState = Mouse.GetState();
-            int randomSizeWidth = generator.Next(50, 200);
-            int randomSizeHeight = generator.Next(50, 200);
-            int randomX = generator.Next(_graphics.PreferredBackBufferWidth - randomSizeWidth);
-            int randomY = generator.Next(_graphics.PreferredBackBufferHeight - randomSizeHeight);
 
             if (screen == Screen.Intro)
             {
@@ -155,92 +145,9 @@ namespace Animation
                 if (mouseState.RightButton == ButtonState.Pressed)
                     screen = Screen.Ending;
 
-                // Your previous tribble moving code should go here
-                tribbleGreyRect.X += (int)tribbleGreySpeed.X; // Needs to be int 
-                tribbleGreyRect.Y += (int)tribbleGreySpeed.Y;
-                tribbleCreamRect.X += (int)tribbleCreamSpeed.X;
-                tribbleCreamRect.Y += (int)tribbleCreamSpeed.Y;
-                tribbleBrownRect.X += (int)tribbleBrownSpeed.X;
-                tribbleBrownRect.Y += (int)tribbleBrownSpeed.Y;
-                tribbleOrangeRect.X += (int)tribbleOrangeSpeed.X;
-                tribbleOrangeRect.Y += (int)tribbleOrangeSpeed.Y;
-
-                if (tribbleGreyRect.Right >= _graphics.PreferredBackBufferWidth || tribbleGreyRect.Left <= 0)
-                {
-                    tribbleGreySpeed.X *= -1;
-                    bounce.Play();
-                }
-                if (tribbleGreyRect.Top <= 0 || tribbleGreyRect.Bottom >= _graphics.PreferredBackBufferHeight)
-                {
-                    tribbleGreySpeed.Y *= -1;
-                    bounce.Play();
-                }
-
-                if (tribbleCreamRect.Right >= _graphics.PreferredBackBufferWidth || tribbleCreamRect.Left <= 0)
-                {
-                    tribbleCreamSpeed.X *= -1;
-                    hits++;
-
-                    bounce.Play();
-                }
-
-                if (tribbleCreamRect.Top <= 0 || tribbleCreamRect.Bottom >= _graphics.PreferredBackBufferHeight)
-                {
-                    tribbleCreamSpeed.Y *= -1;
-                    hits++;
-                    bounce.Play();
-                }
-
-                if (tribbleBrownRect.Right >= _graphics.PreferredBackBufferWidth || tribbleBrownRect.Left <= 0)
-                {
-                    tribbleBrownSpeed.X *= -1;
-                    tribbleBrownRect.X = randomX;
-                    tribbleBrownRect.Y = randomY;
-                    tribbleBrownRect.Width = randomSizeWidth;
-                    tribbleBrownRect.Height = randomSizeHeight;
-                    teleport.Play();
-                }
-
-                if (tribbleBrownRect.Top <= 0 || tribbleBrownRect.Bottom >= _graphics.PreferredBackBufferHeight)
-                {
-                    tribbleBrownSpeed.Y *= -1;
-                    tribbleBrownRect.X = randomX;
-                    tribbleBrownRect.Y = randomY;
-                    tribbleBrownRect.Width = randomSizeWidth;
-                    tribbleBrownRect.Height = randomSizeHeight;
-                    teleport.Play();
-                }
-
-                if (tribbleOrangeRect.Right >= _graphics.PreferredBackBufferWidth || tribbleOrangeRect.Left <= 0)
-                {
-                    if (tribbleOrangeRect.Right >= _graphics.PreferredBackBufferWidth)
-                    {
-                        tribbleOrangeSpeed.X = -1 * generator.Next(5, 13);
-                    }
-                    else
-                    {
-                        tribbleOrangeSpeed.X = generator.Next(5, 13);
-                    }
-
-                    bounce.Play();
-                }
-
-                if (tribbleOrangeRect.Top <= 0 || tribbleOrangeRect.Bottom >= _graphics.PreferredBackBufferHeight)
-                {
-                    if (tribbleOrangeRect.Top <= 0)
-                    {
-                        tribbleOrangeSpeed.Y = generator.Next(5, 13);
-                    }
-                    else
-                    {
-                        tribbleOrangeSpeed.Y = -1 * generator.Next(5, 13);
-                    }
-
-                    bounce.Play();
-
-                }
-
-
+                foreach (Tribble tribble in loopedTribbles)
+                    tribble.Move(_graphics);
+                    
             }
             else if (screen == Screen.Ending)
             {
@@ -279,19 +186,17 @@ namespace Animation
                 // Your previous tribble drawing code should go here
 
 
-                if (hits < 15)
+                if (loopedTribbles[1].Hits < 15)
                 {
                     _spriteBatch.Draw(mcdonaldsTexture, mcdonaldsRect, Color.White);
-                    _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.White);
                     _spriteBatch.DrawString(attackText, "'Right Click' to End the Tribble Race!", new Vector2(0, 0), Color.Red);
                     mcdonaldsWorld = true;
                     moonWorld = false;
                     parisWorld = false;
                 }
-                else if (hits >= 15 && hits <= 20)
+                else if (loopedTribbles[1].Hits >= 15 && loopedTribbles[1].Hits <= 20)
                 {
                     _spriteBatch.Draw(parisTexture, parisRect, Color.White);
-                    _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.Red);
                     _spriteBatch.DrawString(attackText, "'Right Click' to End the Tribble Race!", new Vector2(0, 0), Color.Red);
                     parisWorld = true;
                     moonWorld = false;
@@ -300,16 +205,19 @@ namespace Animation
                 else
                 {
                     _spriteBatch.Draw(spaceTexture, spaceRect, Color.White);
-                    _spriteBatch.Draw(tribbleCreamTexture, tribbleCreamRect, Color.Blue);
                     _spriteBatch.DrawString(attackText, "'Right Click' to End the Tribble Race!", new Vector2(0, 0), Color.Red);
                     moonWorld = true;
                     parisWorld = false;
                     mcdonaldsWorld = false;
                 }
 
-                _spriteBatch.Draw(tribbleGreyTexture, tribbleGreyRect, Color.White);
-                _spriteBatch.Draw(tribbleBrownTexture, tribbleBrownRect, Color.White);
-                _spriteBatch.Draw(tribbleOrangeTexture, tribbleOrangeRect, Color.White);
+              
+
+                foreach (Tribble tribble in loopedTribbles)
+                    tribble.Draw(_spriteBatch);
+
+               
+
 
             }
             else if (screen == Screen.Ending)
@@ -326,11 +234,15 @@ namespace Animation
                 {
                     _spriteBatch.Draw(spaceTexture, spaceRect, Color.White);
                 }
+
                 _spriteBatch.DrawString(victoryText, "The Tribbles are Extinct!", new Vector2(30, 30), Color.Blue);
-                _spriteBatch.Draw(blownTribbleTexture, tribbleGreyRect, Color.White);
-                _spriteBatch.Draw(blownTribbleTexture, tribbleOrangeRect, Color.White);
-                _spriteBatch.Draw(blownTribbleTexture, tribbleCreamRect, Color.White);
-                _spriteBatch.Draw(blownTribbleTexture, tribbleBrownRect, Color.White);
+
+               for (int i = 0; i < amount; i++)
+               {
+                    loopedTribbles[i].Texture = blownTribbleTexture;
+               }
+                foreach (Tribble tribble in loopedTribbles)
+                    tribble.Draw(_spriteBatch);
 
             }
             _spriteBatch.End();
