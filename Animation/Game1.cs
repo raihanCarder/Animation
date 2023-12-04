@@ -20,15 +20,10 @@ namespace Animation
         List<Tribble> loopedTribbles = new List<Tribble>();
         List<Texture2D> tribbleTextures = new List<Texture2D>();
 
-        private SoundEffect bounce, introSong, endSong, teleport;
+        private SoundEffect bounce, introSong, endSong;
         SoundEffectInstance introInstance, endInstance;
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-
-        Tribble tribbleGrey;
-        Tribble tribbleCream;
-        Tribble tribbleBrown;
-        Tribble tribbleOrange;
 
         Texture2D tribbleGreyTexture;
         Texture2D tribbleBrownTexture;
@@ -88,8 +83,6 @@ namespace Animation
             {
                 loopedTribbles.Add(new Tribble(tribbleTextures[generator.Next(tribbleTextures.Count)], bounce, _graphics));
             }
-
-
         }
 
         protected override void LoadContent()
@@ -111,7 +104,6 @@ namespace Animation
             mcdonaldsTexture = Content.Load<Texture2D>("Mcdonalds");
             spaceTexture = Content.Load<Texture2D>("Space");
             parisTexture = Content.Load<Texture2D>("Paris");
-            teleport = Content.Load<SoundEffect>("TeleportWav");
             bounce = Content.Load<SoundEffect>("BounceWave");
             tribbleIntroTexture = Content.Load<Texture2D>("Area51");
             introText = Content.Load<SpriteFont>("IntroText");
@@ -241,6 +233,7 @@ namespace Animation
                {
                     loopedTribbles[i].Texture = blownTribbleTexture;
                }
+
                 foreach (Tribble tribble in loopedTribbles)
                     tribble.Draw(_spriteBatch);
 

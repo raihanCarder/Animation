@@ -19,10 +19,10 @@ namespace Animation
         private Rectangle _rectangle;
         private Vector2 _speed;
         private int _hits = 0;
-        private int tribbleWidth = 100;
+        private int _tribbleWidth, _tribbleHeight;
         private SoundEffect _bounce;
         private Color _color;
-        private bool _tribbleVertical = false, _tribbleHorizontal = false, _tribbleMixed = false, _tribbleCorner = false;
+        private bool _tribbleVertical = false, _tribbleHorizontal = false, _tribbleMixed = false, _tribbleCorner = false, _mute = false;
         private int _uniqueTribble;
         
 
@@ -30,7 +30,10 @@ namespace Animation
         {
             _uniqueTribble = _generator.Next(1, 5);
 
-            _rectangle = new Rectangle(_generator.Next(graphics.PreferredBackBufferWidth - tribbleWidth), _generator.Next(graphics.PreferredBackBufferHeight - tribbleWidth), _generator.Next(10,tribbleWidth), _generator.Next(10, tribbleWidth));
+            _tribbleWidth = _generator.Next(10, 100);
+            _tribbleHeight = _generator.Next(10, 100);
+
+            _rectangle = new Rectangle(_generator.Next(graphics.PreferredBackBufferWidth - _tribbleWidth), _generator.Next(graphics.PreferredBackBufferHeight - _tribbleHeight), _tribbleWidth, _tribbleHeight);
             _texture = texture;
             _bounce = bounce;
 
@@ -52,10 +55,51 @@ namespace Animation
             else if (_uniqueTribble == 4)
             {
                 int sameDistance = _generator.Next(1, 10);
+                _tribbleCorner = true;
                 _speed = new Vector2(sameDistance, sameDistance);
             }
 
+            _color = Color.White;
+            
         }
+
+        public Tribble (Texture2D texture)  // Challenge, Made it So if you use this contructor there's no bounce sound instead of the normal which includes the bounce.
+        {
+            _texture = texture;
+
+            _mute = true;
+            _uniqueTribble = _generator.Next(1, 5);
+
+            _tribbleHeight = _generator.Next(10, 100);
+            _tribbleWidth = _generator.Next(10, 100);
+
+            _rectangle = new Rectangle(_generator.Next(900- _tribbleWidth), _generator.Next(500- _tribbleHeight), _tribbleWidth, _tribbleHeight);
+
+            if (_uniqueTribble == 1)
+            {
+                _tribbleVertical = true;
+                _speed = new Vector2(0, _generator.Next(1, 10));
+            }
+            else if (_uniqueTribble == 2)
+            {
+                _tribbleHorizontal = true;
+                _speed = new Vector2(_generator.Next(1, 10), 0);
+            }
+            else if (_uniqueTribble == 3)
+            {
+                _tribbleMixed = true;
+                _speed = new Vector2(_generator.Next(1, 10), _generator.Next(1, 10));
+            }
+            else if (_uniqueTribble == 4)
+            {
+                int sameDistance = _generator.Next(1, 10);
+                _tribbleCorner = true;
+                _speed = new Vector2(sameDistance, sameDistance);
+            }
+
+            _color = Color.White;
+        }
+
 
         public Texture2D Texture
         {
@@ -68,10 +112,19 @@ namespace Animation
             set { _rectangle = value; }
 
         }
+        public Vector2 Speed
+        {
+            get { return _speed; }
+        }
+        public Color Color
+        { 
+            get { return _color; }
+        }
         public int Hits
         {
             get { return _hits; }
         }
+
         public void Move(GraphicsDeviceManager graphics)
         {
             _rectangle.Offset(_speed);
@@ -80,46 +133,55 @@ namespace Animation
             {
                 _speed.X *= -1;
                 _hits++;
-                _bounce.Play();
 
-                if (_tribbleHorizontal)
+                if (!_mute)
                 {
-                                 
+                    _bounce.Play();
                 }
-                else if (_tribbleMixed)
-                {  
-                 
+
+                if (_tribbleMixed)
+                {
+                    _color = new Color(Convert.ToByte(_generator.Next(255)), Convert.ToByte(_generator.Next(255)), Convert.ToByte(_generator.Next(255)));
+                    _rectangle.X = _generator.Next(graphics.PreferredBackBufferWidth - _tribbleWidth);
+                    _rectangle.Y = _generator.Next(graphics.PreferredBackBufferWidth - _tribbleHeight);
+                    _speed.X = _generator.Next(1, 10);
+                    _speed.Y = _generator.Next(1, 10);
                 }
                 else if (_tribbleCorner)
                 {
-                
+                    _color = new Color(Convert.ToByte(_generator.Next(255)), Convert.ToByte(_generator.Next(255)), Convert.ToByte(_generator.Next(255)));                 
                 }
             }
 
             if (_rectangle.Bottom > graphics.PreferredBackBufferHeight || _rectangle.Top < 0)
             {
                 _speed.Y *= -1;
-                _hits++;
-                _bounce.Play();
 
-         
                 if (_tribbleMixed)
                 {
-                    
-                }
-                else if (_tribbleVertical)
-                {
 
+                    _color = new Color(Convert.ToByte(_generator.Next(255)), Convert.ToByte(_generator.Next(255)), Convert.ToByte(_generator.Next(255)));
+                    _rectangle.X = _generator.Next(graphics.PreferredBackBufferWidth - _tribbleWidth);
+                    _rectangle.Y = _generator.Next(graphics.PreferredBackBufferWidth - _tribbleHeight);
+                    _speed.X = _generator.Next(1, 10);
+                    _speed.Y = _generator.Next(1, 10);
                 }
                 else if (_tribbleCorner)
                 {
+                    _color = new Color(Convert.ToByte(_generator.Next(255)), Convert.ToByte(_generator.Next(255)), Convert.ToByte(_generator.Next(255)));                
+                }
 
+                _hits++;
+
+                if (!_mute)
+                {
+                    _bounce.Play();
                 }
             }
         }
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(_texture, _rectangle, Color.White);
+            spriteBatch.Draw(_texture, _rectangle, _color);
         }
 
     }
