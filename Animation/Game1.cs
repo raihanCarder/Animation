@@ -25,6 +25,7 @@ namespace Animation
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
+        Texture2D gokuTexture;
         Texture2D tribbleGreyTexture;
         Texture2D tribbleBrownTexture;
         Texture2D tribbleCreamTexture;
@@ -100,7 +101,7 @@ namespace Animation
             tribbleTextures.Add(tribbleBrownTexture);
             tribbleTextures.Add(tribbleCreamTexture);
 
-
+            gokuTexture = Content.Load<Texture2D>("Goku-removebg-preview");
             mcdonaldsTexture = Content.Load<Texture2D>("Mcdonalds");
             spaceTexture = Content.Load<Texture2D>("Space");
             parisTexture = Content.Load<Texture2D>("Paris");
@@ -127,8 +128,12 @@ namespace Animation
                 if (mouseState.LeftButton == ButtonState.Pressed)
                     screen = Screen.TribbleYard;
 
-                   introInstance.Play();
+                introInstance.Play();
 
+                if (introInstance.State == SoundState.Stopped)
+                {
+                    screen = Screen.TribbleYard;
+                }
             }
             else if (screen == Screen.TribbleYard)
             {
@@ -172,6 +177,7 @@ namespace Animation
             {
                 _spriteBatch.Draw(tribbleIntroTexture, new Rectangle(0, 0, 900, 500), Color.White);
                 _spriteBatch.DrawString(introText, "WARNING: LEFT CLICK TO RELEASE THE TRIBBLES", new Vector2(30,0), Color.Red);
+                _spriteBatch.Draw(gokuTexture, new Rectangle(480, 200, 150, 300), Color.White);
             }
             else if (screen == Screen.TribbleYard)
             {
@@ -181,7 +187,7 @@ namespace Animation
                 if (loopedTribbles[1].Hits < 15)
                 {
                     _spriteBatch.Draw(mcdonaldsTexture, mcdonaldsRect, Color.White);
-                    _spriteBatch.DrawString(attackText, "'Right Click' to End the Tribble Race!", new Vector2(0, 0), Color.Red);
+                    _spriteBatch.DrawString(attackText, "'Right Click' to End the Tribble Race!", new Vector2(0, 0), Color.Purple);
                     mcdonaldsWorld = true;
                     moonWorld = false;
                     parisWorld = false;
@@ -204,7 +210,6 @@ namespace Animation
                 }
 
               
-
                 foreach (Tribble tribble in loopedTribbles)
                     tribble.Draw(_spriteBatch);
 
